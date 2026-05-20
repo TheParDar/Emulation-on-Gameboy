@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.16)
+project(gb_emulator VERSION 0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+option(GB_ENABLE_SDL "Build with SDL2 window" ON)
+
+add_executable(gb_emulator
+    src/main.cpp
+    src/memory.cpp
+    src/cpu.cpp
+    src/cartridge.cpp
+    src/ppu.cpp
+    src/timer.cpp
+)
+
+target_include_directories(gb_emulator PRIVATE include)
+
+if(GB_ENABLE_SDL)
+    find_package(SDL2 QUIET)
+    if(SDL2_FOUND)
+        target_compile_definitions(gb_emulator PRIVATE GB_USE_SDL=1)
+        target_link_libraries(gb_emulator PRIVATE SDL2::SDL2)
+    else()
+        message(STATUS "SDL2 not found — building headless (console only)")
+    endif()
+endif()
+
+if(MSVC)
+    target_compile_options(gb_emulator PRIVATE /W4 /permissive-)
+else()
+    target_compile_options(gb_emulator PRIVATE -Wall -Wextra -Wpedantic)
+endif()
